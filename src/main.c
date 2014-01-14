@@ -34,6 +34,10 @@ static bool INVERT = false;
 static GColor BACKGROUND_COLOR = GColorBlack;
 static GColor FOREGROUND_COLOR = GColorWhite;
 
+static char time_text[] = "00:00";
+static char date_text[] = "00 Xxx";
+static char date_row_text[] = "00 Xxx";
+
 Window *window;
 
 Layer *minute_display_layer;
@@ -137,7 +141,7 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   if (SHOW_TEXT_TIME && time_layer_exists)
   {
 	  // Need to be static because it's used by the system later.
-	  static char time_text[] = "00:00";
+	  //static char time_text[] = "00:00";
 	
 	  char *time_format;
 	
@@ -154,16 +158,20 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
 
   if (SHOW_TEXT_DATE && date_layer_exists)
   {
-	  static char date_text[] = "00 Xxx";
+	  //static char date_text[] = "00 Xxx";
 	  if (ROW_DATE)
 	  {
 		  //date_text = "xx Xxx";
-	  	  strftime(date_text, sizeof(date_text), "%d %b", tick_time);
+	  	  strftime(date_row_text, sizeof(date_row_text), "%d %b", tick_time);
+		  strftime(date_text, sizeof(date_text), "%b %d", tick_time);
+		  text_layer_set_text(text_date_layer, date_row_text);
 	  } else {
 		  //date_text = "Xxx xx";
+		  strftime(date_row_text, sizeof(date_row_text), "%d %b", tick_time);
 	  	  strftime(date_text, sizeof(date_text), "%b %d", tick_time);
+		  text_layer_set_text(text_date_layer, date_text);
 	  }
-	  text_layer_set_text(text_date_layer, date_text);
+	  //text_layer_set_text(text_date_layer, date_text);
   }
 }
 
@@ -255,6 +263,17 @@ static void setup_time_date_layers() {
 	 window_set_background_color(window, BACKGROUND_COLOR);
 	 
 	 setup_time_date_layers();
+	 
+	 if (SHOW_TEXT_TIME && time_layer_exists) text_layer_set_text(text_time_layer, time_text);
+	 if (SHOW_TEXT_DATE && date_layer_exists)
+	 {
+		 if (ROW_DATE)
+		 {
+		  text_layer_set_text(text_date_layer, date_row_text);
+		 } else {
+		  text_layer_set_text(text_date_layer, date_text);
+		 }
+	 }
  }
 
 
